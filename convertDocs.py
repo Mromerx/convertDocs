@@ -71,20 +71,20 @@ def convert_file(input_path: str, output_format: str, output_dir: str, use_ocr: 
             print("Success")
             return True
 
-        if category == 'documento':
+        if category == 'document':
             documento_converter.convert(input_path, output_format, output_dir)
-        elif category == 'presentacion':
+        elif category == 'presentation':
             presentacion_converter.convert(input_path, output_format, output_dir)
-        elif category == 'hoja_calculo':
+        elif category == 'spreadsheet':
             hoja_calculo_converter.convert(input_path, output_format, output_dir)
-        elif category == 'generico_o_destino':
+        elif category == 'generic_or_target':
             # E.g. txt to docx needs to look at the output format
             out_category = get_category(output_format)
-            if out_category == 'documento':
+            if out_category == 'document':
                 documento_converter.convert(input_path, output_format, output_dir)
-            elif out_category == 'presentacion':
+            elif out_category == 'presentation':
                 presentacion_converter.convert(input_path, output_format, output_dir)
-            elif out_category == 'hoja_calculo':
+            elif out_category == 'spreadsheet':
                 hoja_calculo_converter.convert(input_path, output_format, output_dir)
             else:
                 print(f"Error: Invalid conversion from {input_ext} to {output_format}", file=sys.stderr)
