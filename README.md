@@ -40,12 +40,12 @@ Create a wrapper script in `~/.local/bin/` (make sure it's in your PATH):
 ```bash
 cat > ~/.local/bin/convertDocs << 'EOF'
 #!/bin/bash
-exec /path/to/convert_docs/.venv/bin/python /path/to/convert_docs/convertDocs.py "$@"
+exec /path/to/convertDocs/.venv/bin/python /path/to/convertDocs/convertDocs.py "$@"
 EOF
 chmod +x ~/.local/bin/convertDocs
 ```
 
-> Replace `/path/to/convert_docs` with the actual path (e.g. `/home/user/Programs/convert_docs`).
+> Replace `/path/to/convertDocs` with the actual path (e.g. `/home/user/Programs/convertDocs`).
 
 Now you can run `convertDocs` from anywhere:
 
@@ -59,16 +59,16 @@ Create a batch file named `convertDocs.cmd` in a directory that's in your PATH (
 
 ```batch
 @echo off
-"C:\path\to\convert_docs\.venv\Scripts\python.exe" "C:\path\to\convert_docs\convertDocs.py" %*
+"C:\path\to\convertDocs\.venv\Scripts\python.exe" "C:\path\to\convertDocs\convertDocs.py" %*
 ```
 
 Or add the project's `.venv\Scripts` directory to your PATH and create an alias:
 
 ```batch
-doskey convertDocs=python C:\path\to\convert_docs\convertDocs.py $*
+doskey convertDocs=python C:\path\to\convertDocs\convertDocs.py $*
 ```
 
-> Replace `C:\path\to\convert_docs` with the actual path (e.g. `C:\Users\YourUser\Programs\convert_docs`).
+> Replace `C:\path\to\convertDocs` with the actual path (e.g. `C:\Users\YourUser\Programs\convertDocs`).
 
 ## Supported Formats
 

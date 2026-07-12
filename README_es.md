@@ -40,12 +40,12 @@ Crea un script envolvente en `~/.local/bin/` (asegúrate de que esté en tu PATH
 ```bash
 cat > ~/.local/bin/convertDocs << 'EOF'
 #!/bin/bash
-exec /ruta/a/convert_docs/.venv/bin/python /ruta/a/convert_docs/convertDocs.py "$@"
+exec /ruta/a/convertDocs/.venv/bin/python /ruta/a/convertDocs/convertDocs.py "$@"
 EOF
 chmod +x ~/.local/bin/convertDocs
 ```
 
-> Reemplaza `/ruta/a/convert_docs` con la ruta real (ej. `/home/usuario/Programas/convert_docs`).
+> Reemplaza `/ruta/a/convertDocs` con la ruta real (ej. `/home/usuario/Programas/convertDocs`).
 
 Ahora puedes ejecutar `convertDocs` desde cualquier lugar:
 
@@ -59,16 +59,16 @@ Crea un archivo batch llamado `convertDocs.cmd` en un directorio que esté en tu
 
 ```batch
 @echo off
-"C:\ruta\a\convert_docs\.venv\Scripts\python.exe" "C:\ruta\a\convert_docs\convertDocs.py" %*
+"C:\ruta\a\convertDocs\.venv\Scripts\python.exe" "C:\ruta\a\convertDocs\convertDocs.py" %*
 ```
 
 O agrega el directorio `.venv\Scripts` del proyecto a tu PATH y crea un alias:
 
 ```batch
-doskey convertDocs=python C:\ruta\a\convert_docs\convertDocs.py $*
+doskey convertDocs=python C:\ruta\a\convertDocs\convertDocs.py $*
 ```
 
-> Reemplaza `C:\ruta\a\convert_docs` con la ruta real (ej. `C:\Users\TuUsuario\Programas\convert_docs`).
+> Reemplaza `C:\ruta\a\convertDocs` con la ruta real (ej. `C:\Users\TuUsuario\Programas\convertDocs`).
 
 ## Formatos Soportados
 
