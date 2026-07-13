@@ -8,7 +8,7 @@ A CLI tool for converting documents, presentations and spreadsheets between mult
 
 - **Linux**: `sudo apt install libreoffice`
 - **macOS**: `brew install libreoffice`
-- **Windows**: Download from [libreoffice.org](https://www.libreoffice.org/download/download/)
+- **Windows**: Download from [libreoffice.org](https://www.libreoffice.org/download/)
 
 **Tesseract** (optional, for OCR on scanned PDFs):
 - **Linux**: `sudo apt install tesseract-ocr`
@@ -23,7 +23,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## USAGE
+## Usage
 
 ```bash
 python convertDocs.py <file_or_dir> --to <format> [--output <path>] [--ocr]

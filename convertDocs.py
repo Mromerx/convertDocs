@@ -57,6 +57,14 @@ def _convert_with_uniqueness(input_path, output_format, output_dir, converter_fu
 
 def _convert_txt_to_target(txt_path: str, output_format: str, output_dir: str, output_name=None):
     """Convert a TXT file to the target format using the appropriate converter."""
+    if output_format == 'txt':
+        dest_name = output_name or Path(txt_path).name
+        dest = Path(output_dir) / dest_name
+        dest = Path(_unique_path(str(dest)))
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(txt_path, str(dest))
+        return str(dest)
+
     cat = get_category(output_format)
     if cat == 'document':
         _convert_with_uniqueness(txt_path, output_format, output_dir, documento_converter.convert, output_name)
@@ -87,6 +95,29 @@ def convert_file(input_path: str, output_format: str, output_dir: str, use_ocr: 
             
         if (input_ext == 'txt' and output_format == 'pdf'):
             _convert_with_uniqueness(input_path, output_format, output_dir, documento_converter.convert, output_name)
+            print("Success")
+            return True
+
+        if use_ocr and input_ext != 'pdf':
+            tmp_dir = str(Path(output_dir) / f"_ocr_tmp_{Path(input_path).stem}")
+            Path(tmp_dir).mkdir(parents=True, exist_ok=True)
+            try:
+                cat = get_category(input_ext)
+                if cat == 'document':
+                    documento_converter.convert(input_path, 'pdf', tmp_dir)
+                elif cat == 'presentation':
+                    presentacion_converter.convert(input_path, 'pdf', tmp_dir)
+                elif cat == 'spreadsheet':
+                    hoja_calculo_converter.convert(input_path, 'pdf', tmp_dir)
+                else:
+                    raise ValueError(f"Cannot convert {input_ext} to PDF for OCR")
+
+                tmp_pdf = str(Path(tmp_dir) / f"{Path(input_path).stem}.pdf")
+                tmp_txt = str(Path(tmp_dir) / f"{Path(input_path).stem}.txt")
+                pdf_txt_converter.convert_pdf_to_txt(tmp_pdf, tmp_txt, use_ocr=True)
+                _convert_txt_to_target(tmp_txt, output_format, output_dir, output_name)
+            finally:
+                shutil.rmtree(tmp_dir, ignore_errors=True)
             print("Success")
             return True
 
@@ -138,7 +169,7 @@ def main():
     parser.add_argument("input_path", help="Input file or directory")
     parser.add_argument("--to", required=True, help="Desired output format (e.g. pdf, txt, docx)")
     parser.add_argument("--output", help="Output path or directory (default: same as input)")
-    parser.add_argument("--ocr", action="store_true", help="Use OCR (pytesseract) to extract text from scanned PDFs")
+    parser.add_argument("--ocr", action="store_true", help="Use OCR (pytesseract) to extract text from scanned documents")
     
     args = parser.parse_args()
     

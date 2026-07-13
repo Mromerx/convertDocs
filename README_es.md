@@ -8,7 +8,7 @@ Una herramienta CLI para convertir documentos, presentaciones y hojas de cálcul
 
 - **Linux**: `sudo apt install libreoffice`
 - **macOS**: `brew install libreoffice`
-- **Windows**: Descargar desde [libreoffice.org](https://www.libreoffice.org/download/download/)
+- **Windows**: Descargar desde [libreoffice.org](https://www.libreoffice.org/download/)
 
 **Tesseract** (opcional, para OCR en PDFs escaneados):
 - **Linux**: `sudo apt install tesseract-ocr`
@@ -23,7 +23,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## USO
+## Uso
 
 ```bash
 python convertDocs.py <archivo_o_directorio> --to <formato> [--output <ruta>] [--ocr]
