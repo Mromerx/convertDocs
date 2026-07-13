@@ -27,7 +27,12 @@ pip install -r requirements.txt
 
 ```bash
 python convertDocs.py <file_or_dir> --to <format> [--output <path>] [--ocr]
+python convertDocs.py <file> --to <filename.ext> [--output <path>] [--ocr]
 ```
+
+- `--to <format>` — saves as `<input_stem>.<format>` (e.g. `doc.docx --to pdf` → `doc.pdf`)
+- `--to <filename.ext>` — saves with a custom filename (e.g. `doc.docx --to final.pdf` → `final.pdf`)
+- If the output file already exists, it auto-renames with `(1)`, `(2)`, etc. (e.g. `final (1).pdf`)
 
 ## Install as Global Command
 
