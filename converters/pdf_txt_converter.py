@@ -48,16 +48,21 @@ def convert_pdf_to_txt(input_path: str, output_path: str, use_ocr: bool = False)
     
     return output_path
 
+_FONT_PATH = Path(__file__).resolve().parent.parent / "fonts" / "DejaVuSans.ttf"
+
 def convert_txt_to_pdf(input_path: str, output_path: str):
     """
     Creates a simple paginated PDF from a TXT file.
     """
     try:
         pdf = FPDF()
+        if _FONT_PATH.exists():
+            pdf.add_font("DejaVu", "", str(_FONT_PATH))
+            pdf.set_font("DejaVu", size=11)
+        else:
+            pdf.set_font("helvetica", size=11)
+
         pdf.add_page()
-        # Use built-in font for simplicity, though it doesn't fully support all UTF-8 characters out of the box without custom fonts.
-        # However, fpdf2 handles unicode well with its default core fonts for standard Latin text.
-        pdf.set_font("helvetica", size=11)
         
         with open(input_path, 'r', encoding='utf-8') as f:
             for line in f:

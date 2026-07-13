@@ -48,10 +48,7 @@ def convert_file(input_path: str, output_format: str, output_dir: str, use_ocr: 
             return True
             
         if (input_ext == 'txt' and output_format == 'pdf'):
-            output_file_name = f"{Path(input_path).stem}.pdf"
-            out_path = os.path.join(output_dir, output_file_name)
-            Path(output_dir).mkdir(parents=True, exist_ok=True)
-            pdf_txt_converter.convert_txt_to_pdf(input_path, out_path)
+            documento_converter.convert(input_path, output_format, output_dir)
             print("Success")
             return True
 
