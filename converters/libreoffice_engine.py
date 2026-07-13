@@ -1,5 +1,4 @@
 import subprocess
-import os
 import platform
 import shutil
 from pathlib import Path
@@ -14,7 +13,7 @@ def _get_libreoffice_executable():
             r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
         ]
         for p in paths:
-            if os.path.exists(p):
+            if Path(p).exists():
                 return p
         return "soffice"  # Assumes it's in PATH
     elif system == "Darwin":
@@ -26,7 +25,7 @@ def _get_libreoffice_executable():
 def check_libreoffice_installed():
     """Checks if LibreOffice is installed and accessible."""
     executable = _get_libreoffice_executable()
-    if shutil.which(executable) or os.path.exists(executable):
+    if shutil.which(executable) or Path(executable).exists():
         return True
     return False
 

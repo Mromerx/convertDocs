@@ -1,7 +1,4 @@
-import os
-from pathlib import Path
 import pdfplumber
-from fpdf import FPDF
 import pdf2image
 import pytesseract
 
@@ -48,33 +45,3 @@ def convert_pdf_to_txt(input_path: str, output_path: str, use_ocr: bool = False)
     
     return output_path
 
-_FONT_PATH = Path(__file__).resolve().parent.parent / "fonts" / "DejaVuSans.ttf"
-
-def convert_txt_to_pdf(input_path: str, output_path: str):
-    """
-    Creates a simple paginated PDF from a TXT file.
-    """
-    try:
-        pdf = FPDF()
-        if _FONT_PATH.exists():
-            pdf.add_font("DejaVu", "", str(_FONT_PATH))
-            pdf.set_font("DejaVu", size=11)
-        else:
-            pdf.set_font("helvetica", size=11)
-
-        pdf.add_page()
-        
-        with open(input_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                text = line.rstrip("\n")
-                if not text.strip():
-                    pdf.ln(5)
-                    continue
-                pdf.set_x(pdf.l_margin)
-                pdf.multi_cell(0, 5, text=text)
-        
-        pdf.output(output_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to generate PDF from TXT: {e}")
-        
-    return output_path

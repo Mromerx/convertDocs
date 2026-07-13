@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from .libreoffice_engine import convert_with_libreoffice
 
@@ -21,7 +20,7 @@ def convert(input_path: str, output_format: str, output_dir: str):
         raise ValueError(f"Format not supported in document category. (Supported: {', '.join(SUPPORTED_FORMATS)})")
     
     output_file_name = f"{Path(input_path).stem}.{output_format}"
-    output_path = os.path.join(output_dir, output_file_name)
+    output_path = str(Path(output_dir) / output_file_name)
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     # Text Extraction: DOCX -> TXT
@@ -46,14 +45,6 @@ def convert(input_path: str, output_format: str, output_dir: str):
     # Special TXT <-> ODT cases (we route them through DOCX or use LibreOffice directly)
     # LibreOffice handles txt to odt and odt to txt natively very well.
     elif input_ext in ['docx', 'odt', 'txt', 'pdf'] and output_format in ['docx', 'odt', 'pdf', 'txt']:
-        # If we reach here, we use LibreOffice engine as the fallback for all other valid combinations
-        # e.g. DOCX->ODT, DOCX->PDF, ODT->PDF, ODT->DOCX, ODT->TXT, TXT->ODT, TXT->PDF
         return convert_with_libreoffice(input_path, output_format, output_dir)
-        
-    else:
-        # For PDF -> TXT or TXT -> PDF, they shouldn't be handled here directly if it's the generic case,
-        # but if a user asks to convert PDF to TXT in this module, we throw an error pointing to the generic converter
-        if input_ext == 'pdf' and output_format == 'txt':
-            raise ValueError("Use the generic PDF <-> TXT conversion")
-            
-        raise ValueError(f"Conversion {input_ext} -> {output_format} not implemented here.")
+
+    raise ValueError(f"Conversion {input_ext} -> {output_format} not implemented here.")
