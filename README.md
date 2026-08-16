@@ -161,8 +161,12 @@ Ranges are 0-based with an exclusive end (`0-1` → page 1 only, `1-34` → page
 | `convertDocs cut doc.docx 3-10` | Cut a DOCX, result stays DOCX |
 | `convertDocs merge a.pdf b.pdf c.pdf` | Merge 3 PDFs into `a_merged.pdf` |
 | `convertDocs merge a.docx b.docx --output combo.docx` | Merge 2 DOCX files |
+| `convertDocs merge a.pdf b.docx --output combo.docx` | Merge mixed PDF+DOCX into a DOCX |
 
-Supported: `pdf`, `docx`, `odt`, `pptx`, `odp`. Not supported (no page model): `txt`, `xlsx`, `ods`. All merged files must share the same format.
+Supported: `pdf`, `docx`, `odt`, `pptx`, `odp` — inputs and output can be any combination of these. Not supported (no page model): `txt`, `xlsx`, `ods`.
+
+- Same-format inputs merge keeping that format (`--output` optional).
+- Mixed-format inputs require `--output <name>.<ext>`; the extension defines the output format (e.g. `--output combo.pdf`). Each input is converted to PDF internally, merged, and converted back.
 
 > Note: for non-PDF formats the cut/merge run through PDF internally (via LibreOffice), so the result is a re-imported reconstruction and may lose some original structure. PDF gives full fidelity.
 

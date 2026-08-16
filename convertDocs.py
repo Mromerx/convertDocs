@@ -223,16 +223,20 @@ def _run_cut(argv):
 def _run_merge(argv):
     parser = argparse.ArgumentParser(
         prog="convertDocs merge",
-        description="Merge 2 or more documents of the same format, keeping that format.",
+        description="Merge 2 or more documents. Same-format inputs keep that format; "
+                    "mixed-format inputs require '--output <name>.<ext>' whose extension "
+                    "defines the output format.",
     )
     parser.add_argument(
         "files",
         nargs="+",
-        help="Input files to merge (must share the same format)",
+        help="Input files to merge (pdf, docx, odt, pptx, odp)",
     )
     parser.add_argument(
         "--output",
-        help="Output directory or full output path (default: '<stem>_merged.<ext>' next to the first file)",
+        help="Output directory or full output path. For mixed formats it must be a "
+             "file path whose extension defines the output format (e.g. combo.pdf). "
+             "Default: '<stem>_merged.<ext>' next to the first file",
     )
     args = parser.parse_args(argv)
 
@@ -244,10 +248,35 @@ def _run_merge(argv):
             print(f"Error: {f} is a directory; 'merge' requires files.", file=sys.stderr)
             return 1
 
+    exts = {Path(f).suffix.lower().lstrip('.') for f in args.files}
+    mixed = len(exts) > 1
+    target_ext = None
+
+    if mixed:
+        if not args.output:
+            print(
+                f"Error: Files have different formats ({', '.join(sorted(exts))}). "
+                "Specify the output format with '--output <name>.<ext>' "
+                "(e.g. --output combo.pdf).",
+                file=sys.stderr,
+            )
+            return 1
+        out = Path(args.output)
+        out_is_dir = out.is_dir() or str(args.output).endswith(os.sep) or not out.suffix
+        if out_is_dir:
+            print(
+                f"Error: Files have different formats ({', '.join(sorted(exts))}). "
+                "'--output' must be a file path with an extension defining the output "
+                "format (e.g. --output combo.pdf).",
+                file=sys.stderr,
+            )
+            return 1
+        target_ext = out.suffix.lower().lstrip('.')
+
     ext = Path(args.files[0]).suffix
     output_path = _resolve_output(args.output, args.files[0], suffix="merged", ext=ext)
     try:
-        pdf_ops.merge_files(args.files, output_path)
+        pdf_ops.merge_files(args.files, output_path, target_ext)
     except ValueError as ve:
         print(f"Error: {ve}", file=sys.stderr)
         return 1

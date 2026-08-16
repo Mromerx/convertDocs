@@ -161,8 +161,12 @@ Los rangos son con índices base 0 y fin exclusivo (`0-1` → solo la página 1,
 | `convertDocs cut doc.docx 3-10` | Cortar un DOCX, el resultado sigue siendo DOCX |
 | `convertDocs merge a.pdf b.pdf c.pdf` | Fusionar 3 PDF en `a_merged.pdf` |
 | `convertDocs merge a.docx b.docx --output combo.docx` | Fusionar 2 archivos DOCX |
+| `convertDocs merge a.pdf b.docx --output combo.docx` | Fusionar PDF+DOCX mixtos en un DOCX |
 
-Soportados: `pdf`, `docx`, `odt`, `pptx`, `odp`. No soportados (sin modelo de página): `txt`, `xlsx`, `ods`. Todos los archivos a fusionar deben compartir el mismo formato.
+Soportados: `pdf`, `docx`, `odt`, `pptx`, `odp` — las entradas y la salida pueden ser cualquier combinación de estos. No soportados (sin modelo de página): `txt`, `xlsx`, `ods`.
+
+- Entradas del mismo formato se fusionan conservando ese formato (`--output` opcional).
+- Entradas de formatos mixtos requieren `--output <nombre>.<ext>`; la extensión define el formato de salida (ej. `--output combo.pdf`). Cada entrada se convierte a PDF internamente, se fusiona y se reconvierte.
 
 > Nota: para formatos no-PDF el corte/fusión se hace vía PDF internamente (con LibreOffice), por lo que el resultado es una reconstrucción re-importada y puede perder parte de la estructura original. El PDF ofrece fidelidad total.
 

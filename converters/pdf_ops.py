@@ -158,10 +158,10 @@ def cut_file(input_path: str, page_spec: str, output_path: str) -> str:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def merge_files(paths, output_path: str) -> str:
+def merge_files(paths, output_path: str, target_ext=None) -> str:
     """
-    Merge 2 or more documents of the same format, keeping that format.
-    Non-PDF formats are routed through PDF internally (round-trip).
+    Merge 2 or more documents, keeping target_ext (or the first file's format).
+    Inputs may mix any supported format; each is routed through PDF internally.
     """
     if len(paths) < 2:
         raise ValueError("Merge requires at least 2 files.")
@@ -172,13 +172,14 @@ def merge_files(paths, output_path: str) -> str:
     for p in paths:
         if not Path(p).exists():
             raise ValueError(f"File {p} does not exist.")
-        p_ext = Path(p).suffix.lower().lstrip('.')
-        if p_ext != ext:
-            raise ValueError(
-                f"Cannot merge files with different formats: .{ext} and .{p_ext}. "
-                "All inputs must share the same format."
-            )
-        _check_supported(p_ext, 'merge')
+        _check_supported(Path(p).suffix.lower().lstrip('.'), 'merge')
+
+    if target_ext is None:
+        target_ext = ext
+    if target_ext not in SUPPORTED_EXTS or target_ext in REJECTED_EXTS:
+        raise ValueError(
+            f"Cannot merge to .{target_ext}. Supported: {', '.join(sorted(SUPPORTED_EXTS))}."
+        )
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
@@ -204,11 +205,11 @@ def merge_files(paths, output_path: str) -> str:
         finally:
             merged.close()
 
-        if ext == 'pdf':
+        if target_ext == 'pdf':
             shutil.copy2(merged_pdf, output_path)
         else:
-            _convert_result_back(merged_pdf, ext, tmp_dir)
-            shutil.copy2(str(Path(tmp_dir) / f"result.{ext}"), output_path)
+            _convert_result_back(merged_pdf, target_ext, tmp_dir)
+            shutil.copy2(str(Path(tmp_dir) / f"result.{target_ext}"), output_path)
         return output_path
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
