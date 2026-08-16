@@ -4,6 +4,7 @@ import shutil
 import sys
 from pathlib import Path
 from converters import documento_converter, presentacion_converter, hoja_calculo_converter, pdf_txt_converter
+from converters import pdf_ops
 
 def get_category(ext):
     ext = ext.lower().replace(".", "")
@@ -164,7 +165,106 @@ def convert_file(input_path: str, output_format: str, output_dir: str, use_ocr: 
         print(f"Error processing {input_path}: {e}", file=sys.stderr)
         return False
 
+def _default_output_name(input_path, suffix, ext=None):
+    path_obj = Path(input_path)
+    out_ext = ext or path_obj.suffix
+    return f"{path_obj.stem}_{suffix}{out_ext}"
+
+def _resolve_output(output_spec, input_path, suffix, ext=None):
+    """Resolve an output path: '--output' may be a directory or a full file path."""
+    if output_spec:
+        spec = Path(output_spec)
+        is_dir = spec.is_dir() or str(output_spec).endswith(os.sep) or not spec.suffix
+        if is_dir:
+            out_dir = str(spec)
+        else:
+            return _unique_path(output_spec)
+    else:
+        out_dir = str(Path(input_path).parent)
+    return _unique_path(os.path.join(out_dir, _default_output_name(input_path, suffix, ext)))
+
+def _run_cut(argv):
+    parser = argparse.ArgumentParser(
+        prog="convertDocs cut",
+        description="Cut a page range from a document, keeping its format.",
+    )
+    parser.add_argument("input_path", help="Input file (pdf, docx, odt, pptx, odp)")
+    parser.add_argument(
+        "range",
+        help="0-based page range with exclusive end (e.g. '0-1' -> page 1 only, "
+             "'1-34' -> pages 2 to 34, '3' -> page 4 only). No shell quoting needed.",
+    )
+    parser.add_argument(
+        "--output",
+        help="Output directory or full output path (default: '<stem>_cut.<ext>' next to input)",
+    )
+    args = parser.parse_args(argv)
+
+    if not os.path.exists(args.input_path):
+        print(f"Error: File {args.input_path} does not exist.", file=sys.stderr)
+        return 1
+    if os.path.isdir(args.input_path):
+        print(f"Error: {args.input_path} is a directory; 'cut' requires a single file.", file=sys.stderr)
+        return 1
+
+    output_path = _resolve_output(args.output, args.input_path, suffix="cut")
+    try:
+        pdf_ops.cut_file(args.input_path, args.range, output_path)
+    except ValueError as ve:
+        print(f"Error: {ve}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error cutting {args.input_path}: {e}", file=sys.stderr)
+        return 1
+
+    print("Success")
+    return 0
+
+def _run_merge(argv):
+    parser = argparse.ArgumentParser(
+        prog="convertDocs merge",
+        description="Merge 2 or more documents of the same format, keeping that format.",
+    )
+    parser.add_argument(
+        "files",
+        nargs="+",
+        help="Input files to merge (must share the same format)",
+    )
+    parser.add_argument(
+        "--output",
+        help="Output directory or full output path (default: '<stem>_merged.<ext>' next to the first file)",
+    )
+    args = parser.parse_args(argv)
+
+    for f in args.files:
+        if not os.path.exists(f):
+            print(f"Error: File {f} does not exist.", file=sys.stderr)
+            return 1
+        if os.path.isdir(f):
+            print(f"Error: {f} is a directory; 'merge' requires files.", file=sys.stderr)
+            return 1
+
+    ext = Path(args.files[0]).suffix
+    output_path = _resolve_output(args.output, args.files[0], suffix="merged", ext=ext)
+    try:
+        pdf_ops.merge_files(args.files, output_path)
+    except ValueError as ve:
+        print(f"Error: {ve}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error merging files: {e}", file=sys.stderr)
+        return 1
+
+    print("Success")
+    return 0
+
 def main():
+    argv = sys.argv[1:]
+    if argv and argv[0] == "cut":
+        return _run_cut(argv[1:])
+    if argv and argv[0] == "merge":
+        return _run_merge(argv[1:])
+
     parser = argparse.ArgumentParser(description="Multi-format document conversion tool.")
     parser.add_argument("input_path", help="Input file or directory")
     parser.add_argument("--to", required=True, help="Desired output format (e.g. pdf, txt, docx)")
@@ -212,4 +312,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

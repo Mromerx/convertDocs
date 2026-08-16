@@ -1,6 +1,6 @@
 # Multi-format Document Converter
 
-A CLI tool for converting documents, presentations and spreadsheets between multiple formats, including generic PDF/text conversions.
+A CLI tool for converting documents, presentations and spreadsheets between multiple formats, including generic PDF/text conversions and page-level cut/merge operations.
 
 ## Requirements
 
@@ -28,11 +28,14 @@ pip install -r requirements.txt
 ```bash
 python convertDocs.py <file_or_dir> --to <format> [--output <path>] [--ocr]
 python convertDocs.py <file> --to <filename.ext> [--output <path>] [--ocr]
+python convertDocs.py cut <file> <range> [--output <path>]
+python convertDocs.py merge <file1> <file2> [<file3> ...] [--output <path>]
 ```
 
 - `--to <format>` — saves as `<input_stem>.<format>` (e.g. `doc.docx --to pdf` → `doc.pdf`)
 - `--to <filename.ext>` — saves with a custom filename (e.g. `doc.docx --to final.pdf` → `final.pdf`)
 - If the output file already exists, it auto-renames with `(1)`, `(2)`, etc. (e.g. `final (1).pdf`)
+- `cut` / `merge` — keep the same format as the input; `--output` may be a directory or a full output path (default: `<stem>_cut.<ext>` / `<stem>_merged.<ext>` next to the input). See [Cut & merge](#cut--merge).
 
 ## Install as Global Command
 
@@ -138,6 +141,30 @@ doskey convertDocs=python C:\path\to\convertDocs\convertDocs.py $*
 | `convertDocs file.pdf --to txt` | Extract text from PDF |
 | `convertDocs file.pdf --to txt --ocr` | Extract text using OCR (requires Tesseract) |
 | `convertDocs file.txt --to pdf` | Create a simple PDF from a text file |
+
+### Cut & merge
+
+`cut` keeps one page range of a document; `merge` concatenates 2 or more documents. Output keeps the same format as the input (non-PDF formats are routed through PDF internally).
+
+```bash
+convertDocs cut <file> <range> [--output <path>]
+convertDocs merge <file1> <file2> [<file3> ...] [--output <path>]
+```
+
+Ranges are 0-based with an exclusive end (`0-1` → page 1 only, `1-34` → pages 2 to 34, `3` → page 4 only). The `-` separator needs no shell quoting.
+
+| Command | Description |
+|---|---|
+| `convertDocs cut doc.pdf 0-1` | Keep only the first page |
+| `convertDocs cut doc.pdf 1-34` | Keep pages 2 to 34 |
+| `convertDocs cut doc.pdf 5-20 --output out.pdf` | Keep pages 6 to 20, saved as `out.pdf` |
+| `convertDocs cut doc.docx 3-10` | Cut a DOCX, result stays DOCX |
+| `convertDocs merge a.pdf b.pdf c.pdf` | Merge 3 PDFs into `a_merged.pdf` |
+| `convertDocs merge a.docx b.docx --output combo.docx` | Merge 2 DOCX files |
+
+Supported: `pdf`, `docx`, `odt`, `pptx`, `odp`. Not supported (no page model): `txt`, `xlsx`, `ods`. All merged files must share the same format.
+
+> Note: for non-PDF formats the cut/merge run through PDF internally (via LibreOffice), so the result is a re-imported reconstruction and may lose some original structure. PDF gives full fidelity.
 
 ### Batch conversion
 
